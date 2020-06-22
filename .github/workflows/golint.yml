@@ -19,7 +19,7 @@ jobs:
         with:
           # Required: the version of golangci-lint is required and must be specified without patch version: we always use the latest patch version.
           version: v1.26
-          args: --timeout=600s -D unused,structcheck
+          args: --timeout=600s -D unused,structcheck -E depguard,gosec,goimports,prealloc,godot
   fmt:
     name: Check Code Format
     runs-on: ubuntu-latest
