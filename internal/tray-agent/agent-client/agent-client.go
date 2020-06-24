@@ -64,8 +64,8 @@ func ListAdvertisements(c *client.Client) (advDescriptionList []string, err erro
 	if err != nil {
 		return nil, err
 	}
-	for i, adv := range advList.Items {
-
+	for i := range advList.Items {
+		adv := advList.Items[i]
 		str := strings.Builder{}
 		str.WriteString(fmt.Sprintf("❨%02d❩ ⟹\t%s", i+1, DescribeAdvertisement(&adv)))
 		advDescriptionList = append(advDescriptionList, str.String())

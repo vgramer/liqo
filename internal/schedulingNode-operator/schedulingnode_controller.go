@@ -26,7 +26,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-// SchedulingNodeReconciler reconciles a SchedulingNode object
+// SchedulingNodeReconciler reconciles a SchedulingNode object.
 type SchedulingNodeReconciler struct {
 	client.Client
 	Log    logr.Logger
@@ -58,7 +58,7 @@ func (r *SchedulingNodeReconciler) Reconcile(req ctrl.Request) (ctrl.Result, err
 }
 
 // SetupWithManager registers the event handler for
-// + node update,create,delete,patch
+// + node update,create,delete,patchi.
 func (r *SchedulingNodeReconciler) SetupWithManager(mgr ctrl.Manager) error {
 
 	if err := ctrl.NewControllerManagedBy(mgr).

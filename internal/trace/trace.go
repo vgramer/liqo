@@ -25,7 +25,7 @@ import (
 	"github.com/liqoTech/liqo/internal/log"
 )
 
-// Tracer is the interface used for creating a tracing span
+// Tracer is the interface used for creating a tracing span.
 type Tracer interface {
 	// StartSpan starts a new span. The span details are embedded into the returned
 	// context
@@ -45,7 +45,7 @@ func WithTracer(ctx context.Context, t Tracer) context.Context {
 	return context.WithValue(ctx, tracerKey{}, t)
 }
 
-// StartSpan starts a span from the configured default tracer
+// StartSpan starts a span from the configured default tracer.
 func StartSpan(ctx context.Context, name string) (context.Context, Span) {
 	t := ctx.Value(tracerKey{})
 

@@ -22,7 +22,7 @@ import (
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
-// TunnelEndpointSpec defines the desired state of TunnelEndpoint
+// TunnelEndpointSpec defines the desired state of TunnelEndpoint.
 type TunnelEndpointSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
@@ -33,7 +33,7 @@ type TunnelEndpointSpec struct {
 	TunnelPrivateIP string `json:"tunnelPrivateIP"`
 }
 
-// TunnelEndpointStatus defines the observed state of TunnelEndpoint
+// TunnelEndpointStatus defines the observed state of TunnelEndpoint.
 type TunnelEndpointStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file\
@@ -53,7 +53,7 @@ type TunnelEndpointStatus struct {
 // +kubebuilder:subresource:status
 // +kubebuilder:resource:scope=Cluster
 
-// TunnelEndpoint is the Schema for the endpoints API
+// TunnelEndpoint is the Schema for the endpoints API.
 type TunnelEndpoint struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
@@ -64,7 +64,7 @@ type TunnelEndpoint struct {
 
 // +kubebuilder:object:root=true
 
-// TunnelEndpointList contains a list of TunnelEndpoint
+// TunnelEndpointList contains a list of TunnelEndpoint.
 type TunnelEndpointList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`

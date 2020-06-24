@@ -33,7 +33,7 @@ type NamespacedName struct {
 	Name      string `json:"name"`
 }
 
-// AdvertisementSpec defines the desired state of Advertisement
+// AdvertisementSpec defines the desired state of Advertisement.
 type AdvertisementSpec struct {
 	ClusterId     string                                      `json:"clusterId"`
 	Images        []corev1.ContainerImage                     `json:"images,omitempty"`
@@ -48,7 +48,7 @@ type AdvertisementSpec struct {
 	TimeToLive    metav1.Time                                 `json:"timeToLive"`
 }
 
-// AdvertisementStatus defines the observed state of Advertisement
+// AdvertisementStatus defines the observed state of Advertisement.
 type AdvertisementStatus struct {
 	AdvertisementStatus   string `json:"advertisementStatus"`
 	VkCreated             bool   `json:"vkCreated"`
@@ -65,7 +65,7 @@ type AdvertisementStatus struct {
 // +kubebuilder:resource:shortName="adv"
 // +kubebuilder:resource:scope=Cluster
 
-// Advertisement is the Schema for the advertisements API
+// Advertisement is the Schema for the advertisements API.
 type Advertisement struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
@@ -76,7 +76,7 @@ type Advertisement struct {
 
 // +kubebuilder:object:root=true
 
-// AdvertisementList contains a list of Advertisement
+// AdvertisementList contains a list of Advertisement.
 type AdvertisementList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`

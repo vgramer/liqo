@@ -21,7 +21,7 @@ import (
 // - path: the path to the kubeconfig file
 // - cm: the configMap containing the kubeconfig
 // - sec: the secret containing the kubeconfig
-// if path is specified create a config from a kubeconfig file, otherwise create or a inCluster config or read the kubeconfig from the configMap/secret
+// if path is specified create a config from a kubeconfig file, otherwise create or a inCluster config or read the kubeconfig from the configMap/secret.
 func GetConfig(path string, cm *v1.ConfigMap, sec *v1.Secret) (*rest.Config, error) {
 	var config *rest.Config
 	var err error
@@ -58,7 +58,7 @@ func GetConfig(path string, cm *v1.ConfigMap, sec *v1.Secret) (*rest.Config, err
 	return config, err
 }
 
-// create a standard K8s client -> to access use client.CoreV1().<resource>(<namespace>).<method>())
+// create a standard K8s client -> to access use client.CoreV1().<resource>(<namespace>).<method>()).
 func NewK8sClient(path string, cm *v1.ConfigMap, sec *v1.Secret) (*kubernetes.Clientset, error) {
 	config, err := GetConfig(path, cm, sec)
 	if err != nil {
@@ -67,7 +67,7 @@ func NewK8sClient(path string, cm *v1.ConfigMap, sec *v1.Secret) (*kubernetes.Cl
 	return kubernetes.NewForConfig(config)
 }
 
-// create a crd client (kubebuilder-like) -> to access use client.<method>(context, <NamespacedName>, <resource>)
+// create a crd client (kubebuilder-like) -> to access use client.<method>(context, <NamespacedName>, <resource>).
 func NewCRDClient(path string, cm *v1.ConfigMap, sec *v1.Secret) (client.Client, error) {
 	config, err := GetConfig(path, cm, sec)
 	if err != nil {
@@ -88,7 +88,7 @@ func NewCRDClient(path string, cm *v1.ConfigMap, sec *v1.Secret) (client.Client,
 	return remoteClient, nil
 }
 
-// extract kubeconfig from a configMap
+// extract kubeconfig from a configMap.
 func GetKubeconfigFromConfigMap(cm v1.ConfigMap) clientcmd.KubeconfigGetter {
 	return func() (*clientcmdapi.Config, error) {
 
@@ -97,7 +97,7 @@ func GetKubeconfigFromConfigMap(cm v1.ConfigMap) clientcmd.KubeconfigGetter {
 	}
 }
 
-// extract kubeconfig from a secret
+// extract kubeconfig from a secret.
 func GetKubeconfigFromSecret(sec v1.Secret) clientcmd.KubeconfigGetter {
 	return func() (*clientcmdapi.Config, error) {
 

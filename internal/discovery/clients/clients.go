@@ -28,7 +28,7 @@ func NewK8sClient() (*kubernetes.Clientset, error) {
 	return kubernetes.NewForConfig(config)
 }
 
-// TODO: delete
+// TODO: delete.
 func NewDiscoveryClient() (*v1.DiscoveryV1Client, error) {
 	config, err := NewConfig()
 	if err != nil {
