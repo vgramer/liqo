@@ -43,6 +43,8 @@ type AdvertisementBroadcaster struct {
 	GatewayIP        string
 	GatewayPrivateIP string
 	ClusterConfig    policyv1.ClusterConfigSpec
+	RetryTimeout     time.Duration
+	BroadcastTimeout time.Duration
 }
 
 // start the broadcaster which sends Advertisement messages
@@ -101,7 +103,7 @@ func StartBroadcaster(homeClusterId, localKubeconfigPath, foreignKubeconfigPath,
 		remoteClient, err = pkg.NewCRDClient(foreignKubeconfigPath, nil, secretForAdvertisementCreation)
 		if err != nil {
 			log.Error(err, "Unable to create client to remote cluster "+foreignClusterId+". Retry in 1 minute")
-			time.Sleep(1 * time.Minute)
+			time.Sleep(b.RetryTimeout)
 		} else {
 			break
 		}
@@ -155,6 +157,8 @@ func StartBroadcaster(homeClusterId, localKubeconfigPath, foreignKubeconfigPath,
 			ForeignClusterId:           pr.Name,
 			GatewayIP:                  gatewayIP,
 			GatewayPrivateIP:           gatewayPrivateIP,
+			RetryTimeout:               b.RetryTimeout,
+			BroadcastTimeout:           b.RetryTimeout,
 		}
 
 		if err = broadcaster.WatchConfiguration(localKubeconfigPath); err != nil {
@@ -179,13 +183,13 @@ func (b *AdvertisementBroadcaster) GenerateAdvertisement(foreignKubeconfigPath s
 		physicalNodes, err := b.LocalClient.CoreV1().Nodes().List(metav1.ListOptions{LabelSelector: "type != virtual-node"})
 		if err != nil {
 			b.Log.Error(err, "Could not get physical nodes, retry in 1 minute")
-			time.Sleep(1 * time.Minute)
+			time.Sleep(b.RetryTimeout)
 			continue
 		}
 		virtualNodes, err := b.LocalClient.CoreV1().Nodes().List(metav1.ListOptions{LabelSelector: "type = virtual-node"})
 		if err != nil {
 			b.Log.Error(err, "Could not get virtual nodes, retry in 1 minute")
-			time.Sleep(1 * time.Minute)
+			time.Sleep(b.RetryTimeout)
 			continue
 		}
 		// get resources used by pods in the cluster
@@ -197,7 +201,7 @@ func (b *AdvertisementBroadcaster) GenerateAdvertisement(foreignKubeconfigPath s
 		nodeNonTerminatedPodsList, err := b.LocalClient.CoreV1().Pods("").List(metav1.ListOptions{FieldSelector: fieldSelector.String()})
 		if err != nil {
 			b.Log.Error(err, "Could not list pods, retry in 1 minute")
-			time.Sleep(1 * time.Minute)
+			time.Sleep(b.RetryTimeout)
 			continue
 		}
 		reqs, limits := GetAllPodsResources(nodeNonTerminatedPodsList)
@@ -227,7 +231,7 @@ func (b *AdvertisementBroadcaster) GenerateAdvertisement(foreignKubeconfigPath s
 				WatchAdvertisement(b.LocalCRDClient, scheme, foreignKubeconfigPath, b.KubeconfigSecretForForeign, b.HomeClusterId, b.ForeignClusterId)
 			})
 		}
-		time.Sleep(10 * time.Minute)
+		time.Sleep(b.BroadcastTimeout)
 	}
 }
 
