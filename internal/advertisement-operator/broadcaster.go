@@ -60,7 +60,8 @@ type AdvertisementBroadcaster struct {
 func StartBroadcaster(homeClusterId, localKubeconfigPath, foreignKubeconfigPath, gatewayIP, gatewayPrivateIP, peeringRequestName, saName string) error {
 	log := ctrl.Log.WithName("advertisement-broadcaster")
 	log.Info("starting broadcaster")
-
+    RetryTimeout := 1*time.Minute
+    BroadcastTimeout := 1*time.Minute
 	// get a client to the local cluster
 	localClient, err := pkg.NewK8sClient(localKubeconfigPath, nil, nil)
 	if err != nil {
@@ -103,7 +104,7 @@ func StartBroadcaster(homeClusterId, localKubeconfigPath, foreignKubeconfigPath,
 		remoteClient, err = pkg.NewCRDClient(foreignKubeconfigPath, nil, secretForAdvertisementCreation)
 		if err != nil {
 			log.Error(err, "Unable to create client to remote cluster "+foreignClusterId+". Retry in 1 minute")
-			time.Sleep(b.RetryTimeout)
+			time.Sleep(1*time.Minute)
 		} else {
 			break
 		}
@@ -157,8 +158,8 @@ func StartBroadcaster(homeClusterId, localKubeconfigPath, foreignKubeconfigPath,
 			ForeignClusterId:           pr.Name,
 			GatewayIP:                  gatewayIP,
 			GatewayPrivateIP:           gatewayPrivateIP,
-			RetryTimeout:               b.RetryTimeout,
-			BroadcastTimeout:           b.RetryTimeout,
+			RetryTimeout:               RetryTimeout,
+			BroadcastTimeout:           BroadcastTimeout,
 		}
 
 		if err = broadcaster.WatchConfiguration(localKubeconfigPath); err != nil {
