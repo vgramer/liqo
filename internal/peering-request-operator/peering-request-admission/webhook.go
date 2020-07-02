@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/go-logr/logr"
 	discoveryv1 "github.com/liqoTech/liqo/api/discovery/v1"
+	v1 "github.com/liqoTech/liqo/api/discovery/v1"
 	"github.com/liqoTech/liqo/internal/peering-request-operator"
 	"io/ioutil"
 	"k8s.io/api/admission/v1beta1"
@@ -14,7 +15,6 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/serializer"
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/kubernetes/pkg/apis/core/v1"
 	"net/http"
 	"os"
 )
