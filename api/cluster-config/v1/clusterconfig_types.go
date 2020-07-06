@@ -38,6 +38,8 @@ type AdvertisementConfig struct {
 }
 
 type DiscoveryConfig struct {
+	// --- mDNS ---
+
 	Name    string `json:"name"`
 	Service string `json:"service"`
 	Domain  string `json:"domain"`
@@ -54,6 +56,10 @@ type DiscoveryConfig struct {
 	EnableAdvertisement bool `json:"enableAdvertisement"`
 
 	AutoJoin bool `json:"autojoin"`
+
+	// --- DNS ---
+
+	DnsServer string `json:"dnsServer"`
 }
 
 // ClusterConfigStatus defines the observed state of ClusterConfig
