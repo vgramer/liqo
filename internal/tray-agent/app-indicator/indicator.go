@@ -4,6 +4,7 @@ import (
 	"github.com/getlantern/systray"
 	"github.com/liqoTech/liqo/internal/tray-agent/agent/client"
 	"github.com/liqoTech/liqo/internal/tray-agent/icon"
+	"sync"
 )
 
 const MenuWidth = 64
@@ -26,10 +27,12 @@ func Run(onReady func(), onExit func()) {
 }
 
 //Quit stops the indicator execution
-func Quit() {
-	root.Disconnect()
-	if root.agentCtrl.Connected() {
-		root.agentCtrl.StopCaches()
+func (i *Indicator) Quit() {
+	if i != nil {
+		i.Disconnect()
+		if i.agentCtrl.Connected() {
+			i.agentCtrl.StopCaches()
+		}
 	}
 	systray.Quit()
 }
@@ -106,17 +109,15 @@ func (i *Indicator) AgentCtrl() *client.AgentController {
 	return i.agentCtrl
 }
 
-//GetIndicator initialize and returns the Indicator singleton. This function should not be called before Run()
+//GetIndicator initializes and returns the Indicator singleton. This function should not be called before Run()
 func GetIndicator() *Indicator {
 	if root == nil {
 		root = &Indicator{}
-		root.menu = newMenuNode(NodetypeRoot)
+		root.menu = newMenuNode(NodeTypeRoot)
 		root.activeNode = root.menu
-		root.icon = IconLiqoMain
-		systray.SetIcon(icon.LiqoBlack)
-		root.label = ""
-		systray.SetTitle("")
-		root.menuTitleNode = newMenuNode(NodetypeTitle)
+		root.SetIcon(IconLiqoMain)
+		root.SetLabel("")
+		root.menuTitleNode = newMenuNode(NodeTypeTitle)
 		systray.AddSeparator()
 		root.quickMap = make(map[string]*MenuNode)
 		root.config = newConfig()
@@ -142,7 +143,7 @@ func GetIndicator() *Indicator {
 //afterwards using (*Indicator).Connect() or you can manage the event in your own loop retrieving the ClickedChan channel
 //via (*MenuNode).Channel()
 func (i *Indicator) AddAction(title string, tag string, callback func(args ...interface{}), args ...interface{}) *MenuNode {
-	a := newMenuNode(NodetypeAction)
+	a := newMenuNode(NodeTypeAction)
 	a.parent = i.menu
 	a.SetTitle(title)
 	a.SetTag(tag)
@@ -160,11 +161,6 @@ func (i *Indicator) Action(tag string) (act *MenuNode, pres bool) {
 	return
 }
 
-//actions returns the map of all the ACTIONS created since Indicator start
-func (i *Indicator) actions() map[string]*MenuNode {
-	return i.menu.actionMap
-}
-
 //SelectAction selects the ACTION correspondent to 'tag' (if present) as the currently running ACTION in the Indicator,
 //showing its OPTIONS (if present) and hiding all the other ACTIONS The ACTION must be isDeActivated == false
 func (i *Indicator) SelectAction(tag string) *MenuNode {
@@ -174,10 +170,14 @@ func (i *Indicator) SelectAction(tag string) *MenuNode {
 			return a
 		}
 		i.activeNode = a
+		//If there are other actions than the selected one, use WaitGroup to speed GUI mutation up
+		otherActions := len(i.menu.actionMap) - 1
+		var wgOther sync.WaitGroup
+		wgOther.Add(otherActions)
 		for aTag, action := range i.menu.actionMap {
 			if aTag != tag {
 				//recursively hide all other ACTIONS and all their sub-components
-				go func(n *MenuNode) {
+				go func(n *MenuNode, wg *sync.WaitGroup) {
 					n.SetIsVisible(false)
 					//hide all node sub-components
 					for _, option := range n.optionMap {
@@ -186,20 +186,19 @@ func (i *Indicator) SelectAction(tag string) *MenuNode {
 					for _, listNode := range n.nodesList {
 						listNode.SetIsVisible(false)
 					}
-				}(action)
+					wg.Done()
+				}(action, &wgOther)
 			} else {
 				//recursively show selected ACTION with its sub-components
 				action.SetIsEnabled(false)
-				go func(n *MenuNode) {
-					//OPTIONS are showed by default
-					for _, option := range n.optionMap {
-						option.SetIsVisible(true)
-					}
-					//LIST are directly managed by the ACTION logic and so they are not automatically showed
-				}(action)
+				//OPTIONS are shown by default
+				for _, option := range action.optionMap {
+					option.SetIsVisible(true)
+				}
 			}
 
 		}
+		wgOther.Wait()
 		return a
 	}
 	return nil
@@ -213,21 +212,19 @@ func (i *Indicator) DeselectAction() {
 			if action != i.activeNode {
 				action.SetIsVisible(true)
 			} else {
-				go func(n *MenuNode) {
-					n.SetIsVisible(true)
-					if !n.isDeactivated {
-						n.SetIsEnabled(true)
-					}
-					//hide all node sub-components
-					for _, option := range n.optionMap {
-						option.SetIsVisible(false)
-					}
-					for _, listNode := range n.nodesList {
-						listNode.SetIsVisible(false)
-						listNode.SetIsInvalid(true)
-						listNode.Disconnect()
-					}
-				}(action)
+				action.SetIsVisible(true)
+				if !action.isDeactivated {
+					action.SetIsEnabled(true)
+				}
+				//hide all node sub-components
+				for _, option := range action.optionMap {
+					option.SetIsVisible(false)
+				}
+				for _, listNode := range action.nodesList {
+					listNode.SetIsVisible(false)
+					listNode.SetIsInvalid(true)
+					listNode.Disconnect()
+				}
 			}
 		}
 		i.activeNode = i.menu
@@ -243,10 +240,10 @@ func (i *Indicator) DeselectAction() {
 //- tag : unique tag for the QUICK
 //
 //- callback : callback function to be executed at each 'clicked' event. If callback == nil, the function can be set
-//afterwards using (*Indicator).Connect() or you can manage the event in your own loop retrieving the ClickedChan channel
+//afterwards using (*MenuNode).Connect() or you can manage the event in your own loop retrieving the ClickedChan channel
 //via (*MenuNode).Channel()
 func (i *Indicator) AddQuick(title string, tag string, callback func(args ...interface{}), args ...interface{}) *MenuNode {
-	q := newMenuNode(NodetypeQuick)
+	q := newMenuNode(NodeTypeQuick)
 	q.parent = q
 	q.SetTitle(title)
 	q.SetTag(tag)
@@ -264,11 +261,6 @@ func (i *Indicator) Quick(tag string) (quick *MenuNode, pres bool) {
 	return
 }
 
-//quicks returns the map of all the QUICKS created since Indicator start
-func (i *Indicator) quicks() map[string]*MenuNode {
-	return i.quickMap
-}
-
 //------ GETTERS/SETTERS ------
 
 //AddSeparator adds a separator line to the indicator menu
@@ -283,19 +275,14 @@ func (i *Indicator) SetMenuTitle(title string) {
 	i.menuTitleText = title
 }
 
-//Menu returns the ROOT node of the menu tree
-func (i *Indicator) Menu() *MenuNode {
-	return i.menu
-}
-
 //Icon returns the icon-id of the Indicator tray icon currently set
 func (i *Indicator) Icon() Icon {
 	return i.icon
 }
 
-//SetIcon sets the Indicator tray icon
+//SetIcon sets the Indicator tray icon. If 'ico' is not a valid argument or ico == IconLiqoNil,
+//SetIcon does nothing
 func (i *Indicator) SetIcon(ico Icon) {
-	i.icon = ico
 	var newIcon []byte
 	switch ico {
 	case IconLiqoNil:
@@ -311,11 +298,10 @@ func (i *Indicator) SetIcon(ico Icon) {
 	case IconLiqoAdvAccepted:
 		newIcon = icon.LiqoGreen
 	default:
-		ico = IconLiqoMain
-		newIcon = icon.LiqoBlack
+		return
 	}
 	systray.SetIcon(newIcon)
-	root.icon = ico
+	i.icon = ico
 
 }
 

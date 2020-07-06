@@ -49,15 +49,12 @@ func actionSettings() {
 // callback function for the OPTION "notifications" of "settings" action.
 func optionChangeNotifyLevel() {
 	i := app.GetIndicator()
-	str := make([]string, 0)
-	nt := i.Config().NotifyTranslate()
-	for _, v := range nt {
-		str = append(str, v)
-	}
+	notifyDescription := i.Config().NotifyDescriptions()
 	level, ok, _ := dlgs.List("NOTIFICATION SETTINGS", fmt.Sprintf("Choose how you would like to receive "+
 		"notifications from Liqo.\n"+
-		"CURRENT: %s", nt[i.Config().NotifyLevel()]), str)
+		"CURRENT: %s", i.Config().NotifyTranslate(i.Config().NotifyLevel())), notifyDescription)
 	if ok {
-		i.NotificationSetLevel(i.Config().NotifyTranslateReverse()[level])
+
+		i.NotificationSetLevel(i.Config().NotifyTranslateReverse(level))
 	}
 }
