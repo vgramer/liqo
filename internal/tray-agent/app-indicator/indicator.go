@@ -135,11 +135,11 @@ func GetIndicator() *Indicator {
 
 //AddAction adds an ACTION to the indicator menu. It is visible by default.
 //
-//- title : label displayed in the menu
+//	- title : label displayed in the menu
 //
-//- tag : unique tag for the ACTION
+//	- tag : unique tag for the ACTION
 //
-//- callback : callback function to be executed at each 'clicked' event. If callback == nil, the function can be set
+//	- callback : callback function to be executed at each 'clicked' event. If callback == nil, the function can be set
 //afterwards using (*Indicator).Connect() or you can manage the event in your own loop retrieving the ClickedChan channel
 //via (*MenuNode).Channel()
 func (i *Indicator) AddAction(title string, tag string, callback func(args ...interface{}), args ...interface{}) *MenuNode {
@@ -148,7 +148,7 @@ func (i *Indicator) AddAction(title string, tag string, callback func(args ...in
 	a.SetTitle(title)
 	a.SetTag(tag)
 	if callback != nil {
-		a.Connect(callback, args)
+		a.Connect(callback, args...)
 	}
 	a.SetIsVisible(true)
 	i.menu.actionMap[tag] = a
@@ -196,7 +196,6 @@ func (i *Indicator) SelectAction(tag string) *MenuNode {
 					option.SetIsVisible(true)
 				}
 			}
-
 		}
 		wgOther.Wait()
 		return a
@@ -235,11 +234,11 @@ func (i *Indicator) DeselectAction() {
 
 //AddQuick adds a QUICK to the indicator menu. It is visible by default.
 //
-//- title : label displayed in the menu
+//	- title : label displayed in the menu
 //
-//- tag : unique tag for the QUICK
+//	- tag : unique tag for the QUICK
 //
-//- callback : callback function to be executed at each 'clicked' event. If callback == nil, the function can be set
+//	- callback : callback function to be executed at each 'clicked' event. If callback == nil, the function can be set
 //afterwards using (*MenuNode).Connect() or you can manage the event in your own loop retrieving the ClickedChan channel
 //via (*MenuNode).Channel()
 func (i *Indicator) AddQuick(title string, tag string, callback func(args ...interface{}), args ...interface{}) *MenuNode {
@@ -248,7 +247,7 @@ func (i *Indicator) AddQuick(title string, tag string, callback func(args ...int
 	q.SetTitle(title)
 	q.SetTag(tag)
 	if callback != nil {
-		q.Connect(callback, args)
+		q.Connect(callback, args...)
 	}
 	q.SetIsVisible(true)
 	i.quickMap[tag] = q

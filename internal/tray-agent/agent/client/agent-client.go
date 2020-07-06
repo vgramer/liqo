@@ -1,11 +1,13 @@
 package client
 
 import (
+	"errors"
 	"flag"
 	"github.com/gen2brain/dlgs"
 	"github.com/liqoTech/liqo/api/advertisement-operator/v1"
 	"github.com/liqoTech/liqo/pkg/crdClient/v1alpha1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
 	"os"
@@ -69,7 +71,7 @@ func createClient() (*v1alpha1.CRDClient, error) {
 
 //StartCaches starts all the CR caches of the AgentController.
 func (ctrl *AgentController) StartCaches() {
-	ctrl.advCache.StartCache(ctrl.client)
+	_ = ctrl.advCache.StartCache(ctrl.client)
 }
 
 //StopCaches stops all the CR caches running for the AgentController.
@@ -82,7 +84,7 @@ func GetAgentController() *AgentController {
 	if agentCtrl == nil {
 		agentCtrl = &AgentController{}
 		agentCtrl.advCache = createAdvCache()
-		v1alpha1.AddToRegistry("advertisements", &v1.Advertisement{}, &v1.AdvertisementList{})
+		v1alpha1.AddToRegistry("advertisements", &v1.Advertisement{}, &v1.AdvertisementList{}, advertisementKeyer, v1.GroupResource)
 		var err error
 		if c := AcquireKubeconfig(); c {
 			if agentCtrl.client, err = createClient(); err == nil {
@@ -94,6 +96,15 @@ func GetAgentController() *AgentController {
 		}
 	}
 	return agentCtrl
+}
+
+// key extractor for the Advertisement CRD
+func advertisementKeyer(obj runtime.Object) (string, error) {
+	adv, ok := obj.(*v1.Advertisement)
+	if !ok {
+		return "", errors.New("cannot cast received object to Advertisement")
+	}
+	return adv.Name, nil
 }
 
 func (ctrl *AgentController) ConnectionTest() bool {

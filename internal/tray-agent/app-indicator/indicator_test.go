@@ -9,25 +9,28 @@ import (
 
 // test Indicator startup configuration and basic methods
 func TestGetIndicator(t *testing.T) {
-	i := MockGetIndicator()
-	i.AddSeparator()
-	assert.NotNil(t, i.menu, "root MenuNode not instantiated")
-	assert.NotNil(t, i.quickMap, "root quickMap not instantiated")
-	assert.NotNil(t, i.Config(), "root config obj not instantiated")
-	assert.NotNil(t, i.quitChan, "root quitChan not instantiated")
-	assert.NotNil(t, i.listeners, "root listeners not instantiated")
-	if assert.NotNil(t, i.AgentCtrl(), "root agentCtrl obj not instantiated") {
-		if i.agentCtrl.Connected() {
-			assert.Equal(t, IconLiqoMain, i.Icon())
-		} else {
-			assert.Equal(t, IconLiqoNoConn, i.Icon())
+	Run(func() {
+		i := MockGetIndicator()
+		i.AddSeparator()
+		assert.NotNil(t, i.menu, "root MenuNode not instantiated")
+		assert.NotNil(t, i.quickMap, "root quickMap not instantiated")
+		assert.NotNil(t, i.Config(), "root config obj not instantiated")
+		assert.NotNil(t, i.quitChan, "root quitChan not instantiated")
+		assert.NotNil(t, i.listeners, "root listeners not instantiated")
+		if assert.NotNil(t, i.AgentCtrl(), "root agentCtrl obj not instantiated") {
+			if i.agentCtrl.Connected() {
+				assert.Equal(t, IconLiqoMain, i.Icon())
+			} else {
+				assert.Equal(t, IconLiqoNoConn, i.Icon())
+			}
 		}
-	}
-	i.SetLabel("test")
-	assert.Equal(t, "test", i.Label())
-	i.SetMenuTitle("test")
-	assert.Equal(t, i.menuTitleText, "test", "Indicator menu title not correctly set")
-	assert.True(t, i.menuTitleNode.isVisible, "Indicator menu title node not visible")
+		i.SetLabel("test")
+		assert.Equal(t, "test", i.Label())
+		i.SetMenuTitle("test")
+		assert.Equal(t, i.menuTitleText, "test", "Indicator menu title not correctly set")
+		assert.True(t, i.menuTitleNode.isVisible, "Indicator menu title node not visible")
+		i.Quit()
+	}, nil)
 }
 
 // simulation of an Indicator routine that allows to test functions of Indicator and MenuNode

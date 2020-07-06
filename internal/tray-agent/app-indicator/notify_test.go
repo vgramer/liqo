@@ -1,12 +1,10 @@
 package app_indicator
 
 import (
-	_ "github.com/liqoTech/liqo/internal/tray-agent/agent/client"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
-// test NotificationSetLevel
 func TestIndicator_NotificationSetLevel(t *testing.T) {
 	i := &Indicator{
 		//default value: NotifyLevelMax
@@ -25,7 +23,6 @@ func TestIndicator_NotificationSetLevel(t *testing.T) {
 	assert.Equalf(t, NotifyLevelMax, i.config.notifyLevel, "wrong argument accepted")
 }
 
-// test Notify
 func TestIndicator_Notify(t *testing.T) {
 	i := &Indicator{
 		//default value: NotifyLevelMax

@@ -17,25 +17,17 @@ The Indicator can:
 
 USAGE EXAMPLE:
 
-//define execution logic
+		//define execution logic
+		func onReady(){
+			indicator := app_indicator.GetIndicator()
+    		indicator.AddQuick("HOME", "Q_HOME", myFunction)
+			...
+		}
 
-	func onReady(){
-
-		indicator := app_indicator.GetIndicator()
-
-    	indicator.AddQuick("HOME", "Q_HOME", myFunction)
-
-		...
-	}
-
-	func main(){
-
-		//start the indicator
-
-		app_indicator.Run(onReady,func() {})
-
-	}
-
+		func main(){
+			//start the indicator
+			app_indicator.Run(onReady,func() {})
+		}
 
 */
 package app_indicator
