@@ -17,7 +17,7 @@ require (
 	github.com/gen2brain/beeep v0.0.0-20200420150314-13046a26d502
 	github.com/getlantern/systray v0.0.0-20200324212034-d3ab4fd25d99
 	github.com/getsentry/raven-go v0.2.0 // indirect
-	github.com/go-logr/logr v0.1.0
+	github.com/go-logr/logr v0.2.0
 	github.com/go-sql-driver/mysql v1.5.0 // indirect
 	github.com/gogo/protobuf v1.3.1 // indirect
 	github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e // indirect
